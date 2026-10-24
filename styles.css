@@ -855,6 +855,12 @@ h2 {
     justify-self: start;
   }
 
+  .catalog-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
   .list-toolbar {
     flex-wrap: wrap;
   }
