@@ -192,11 +192,16 @@ select {
 .sync-status[data-state="error"] { color: var(--coral); }
 
 .account-actions .button-quiet {
+  display: inline-flex;
   min-height: 28px;
+  align-items: center;
   padding: 0 6px;
   color: var(--muted);
   font-size: 0.7rem;
+  text-decoration: none;
 }
+
+.account-actions .account-sign-in:hover { color: var(--green-dark); }
 
 .theme-label {
   color: var(--muted);
@@ -803,8 +808,10 @@ h2 {
 
 .tmdb-logo {
   display: block;
-  width: 62px;
-  height: auto;
+  color: var(--green-dark);
+  font-size: 0.82rem !important;
+  font-weight: 800;
+  letter-spacing: -0.06em;
 }
 
 .visually-hidden {
@@ -839,7 +846,7 @@ h2 {
   }
 
   .header-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px 13px; }
-  .account-actions { order: 2; width: 100%; justify-content: flex-end; }
+  .account-actions { order: 2; width: 100%; flex-wrap: wrap; justify-content: flex-end; }
 
   .reading-stats {
     justify-self: start;
@@ -898,7 +905,7 @@ h2 {
   }
 
   .hero-topline { align-items: flex-start; }
-  .header-actions { max-width: 75%; }
+  .header-actions { max-width: 100%; }
   .account-email { max-width: 105px; }
   .account-actions { gap: 5px; font-size: 0.63rem; }
 

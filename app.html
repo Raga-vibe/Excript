@@ -4,24 +4,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f3ec">
-    <meta name="description" content="Your personal library for books, movies, and series, synced securely across devices.">
+    <meta name="description" content="A personal library for books, movies, and series. Start without an account, or sign in to sync across devices.">
     <title>Your library — Excript</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="auth-client.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
-    <p id="app-loading" class="app-loading" role="status" aria-live="polite">Connecting to your library…</p>
+    <p id="app-loading" class="app-loading" role="status" aria-live="polite">Opening your library…</p>
     <main class="app-shell" id="app-shell" hidden>
       <header class="hero">
         <div class="hero-topline">
           <p class="eyebrow"><span class="brand-mark" aria-hidden="true">E</span> Excript</p>
           <div class="header-actions">
             <div class="account-actions">
-              <span class="account-email" id="account-email"></span>
-              <span class="sync-status" id="sync-status" role="status" aria-live="polite"></span>
-              <button class="button-quiet" id="sign-out" type="button">Sign out</button>
+              <span class="account-email" id="account-email">Guest library</span>
+              <span class="sync-status" id="sync-status" role="status" aria-live="polite">Saved on this device</span>
+              <a class="button-quiet account-sign-in" id="sign-in-link" href="login.html">Sign in to sync</a>
+              <button class="button-quiet" id="sign-out" type="button" hidden>Sign out</button>
             </div>
             <span class="theme-label" id="theme-label">Theme</span>
             <div class="theme-options" role="group" aria-labelledby="theme-label">
@@ -74,7 +74,7 @@
             <span id="creator-label">Author</span>
             <input id="item-creator" name="creator" type="text" maxlength="100" placeholder="Who wrote it?">
           </label>
-          <button class="button button-primary" type="submit">Add to list <span aria-hidden="true">＋</span></button>
+          <button class="button button-primary" type="submit">Add to list</button>
         </form>
         <div class="catalog-actions">
           <button class="button button-secondary" id="catalog-search-button" type="button">Find online</button>
@@ -159,12 +159,12 @@
       <footer class="app-footer">
         <div class="footer-brand">
           <span class="brand-mark" aria-hidden="true">E</span>
-          <span><strong>Excript</strong><small>Your next story, always within reach.</small></span>
+          <span><strong>Excript</strong><small id="storage-note">Guest list saved on this device.</small></span>
         </div>
         <a href="/">Home</a>
         <div class="catalog-attribution">
           <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" aria-label="The Movie Database (TMDB)">
-            <img class="tmdb-logo" src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg" alt="The Movie Database (TMDB)">
+            <span class="tmdb-logo" aria-hidden="true">TMDB</span>
           </a>
           <span>This product uses the TMDB API but is not endorsed, certified, or otherwise approved by TMDB.</span>
           <a href="https://openlibrary.org/" target="_blank" rel="noopener noreferrer">Book data courtesy of Open Library</a>

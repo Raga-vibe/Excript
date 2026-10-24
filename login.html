@@ -10,7 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="landing.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="auth-client.js" defer></script>
     <script src="login.js" defer></script>
   </head>
@@ -47,6 +46,7 @@
         </form>
 
         <p class="auth-switch" id="auth-switch">New to Excript? <button id="mode-toggle" type="button">Create an account</button></p>
+        <p class="auth-guest"><a href="app.html?mode=guest">Continue without an account</a><span>Your list stays on this device.</span></p>
         <p class="auth-message" id="auth-message" role="status" aria-live="polite"></p>
         <p class="auth-config-note" id="auth-config-note" hidden>Sign-in setup is not complete yet. Add your Supabase project URL and publishable key in Vercel, then create the library table using the setup file in this project.</p>
       </section>
