@@ -1,7 +1,7 @@
 const STORAGE_KEY = "excript-reading-list-v1";
 const THEME_STORAGE_KEY = "excript-theme-v1";
 const THEMES = ["forest", "ocean", "sunset", "lavender", "midnight"];
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_PROXY_URL = "/api/tmdb";
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org";
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w342/";
 const TMDB_CACHE_MAX_AGE = 179 * 24 * 60 * 60 * 1000;
@@ -31,10 +31,6 @@ const catalogLookup = document.querySelector("#catalog-lookup");
 const catalogStatus = document.querySelector("#catalog-status");
 const catalogMatchesList = document.querySelector("#catalog-matches");
 const catalogCloseButton = document.querySelector("#catalog-close");
-const tmdbTokenInput = document.querySelector("#tmdb-token");
-const tmdbConnectButton = document.querySelector("#tmdb-connect");
-const tmdbDisconnectButton = document.querySelector("#tmdb-disconnect");
-const tmdbConnectionStatus = document.querySelector("#tmdb-connection-status");
 const catalogUpdateStatus = document.querySelector("#catalog-update-status");
 
 const sections = {
@@ -59,7 +55,6 @@ const sections = {
 };
 
 let items = loadItems();
-let tmdbAccessToken = "";
 let catalogMatches = [];
 let catalogLookupContext = null;
 let lastOpenLibraryRequestAt = 0;
@@ -185,7 +180,12 @@ function announceChange(message, saved = true) {
 async function requestJson(url, options) {
   const response = await fetch(url, options);
   if (!response.ok) {
-    if (response.status === 401) throw new Error("The catalog rejected the API token. Check it and reconnect.");
+    if (response.status === 401) {
+      throw new Error(url.startsWith(TMDB_PROXY_URL)
+        ? "Excript's shared TMDB connection was rejected. The site owner may need to update its Vercel setting."
+        : "The catalog rejected this request. Try again later.");
+    }
+    if (response.status === 503) throw new Error("The shared movie and series catalog is not configured on this deployment yet.");
     if (response.status === 429) throw new Error("The catalog is busy. Wait a little, then try again.");
     throw new Error(`The catalog request failed (${response.status}). Try again later.`);
   }
@@ -201,9 +201,9 @@ async function requestOpenLibrary(url) {
   return requestJson(url);
 }
 
-function tmdbHeaders(token = tmdbAccessToken) {
-  if (!token) throw new Error("Connect TMDB first to search for or refresh movies and series.");
-  return { Accept: "application/json", Authorization: `Bearer ${token}` };
+function tmdbUrl(path, parameters = {}) {
+  const query = new URLSearchParams({ path, ...parameters });
+  return `${TMDB_PROXY_URL}?${query}`;
 }
 
 async function searchOpenLibrary(title, creator) {
@@ -223,9 +223,7 @@ async function searchOpenLibrary(title, creator) {
 async function searchTmdb(type, title) {
   const endpoint = type === "movie" ? "movie" : "tv";
   const query = new URLSearchParams({ query: title, include_adult: "false" });
-  const data = await requestJson(`${TMDB_BASE_URL}/search/${endpoint}?${query}`, {
-    headers: tmdbHeaders(),
-  });
+  const data = await requestJson(tmdbUrl(`/search/${endpoint}`, Object.fromEntries(query)));
   return (data.results ?? []).filter((result) => Number.isInteger(result.id));
 }
 
@@ -297,12 +295,6 @@ async function searchCatalog(title, type, creator = "", itemId = null) {
   catalogLookupContext = { title: cleanTitle, type, creator: creator.trim(), itemId };
 
   try {
-    if (type !== "book" && !tmdbAccessToken) {
-      document.querySelector(".catalog-settings").open = true;
-      tmdbTokenInput.focus();
-      throw new Error("Add your TMDB read access token in the connection panel, then search again.");
-    }
-
     catalogMatches = type === "book"
       ? await searchOpenLibrary(cleanTitle, creator.trim())
       : await searchTmdb(type, cleanTitle);
@@ -343,10 +335,8 @@ async function getCatalogDetails(type, match) {
 
   const isMovie = type === "movie";
   const mediaType = isMovie ? "movie" : "tv";
-  const append = isMovie ? "?append_to_response=credits" : "";
-  const detail = await requestJson(`${TMDB_BASE_URL}/${mediaType}/${match.id}${append}`, {
-    headers: tmdbHeaders(),
-  });
+  const parameters = isMovie ? { append_to_response: "credits" } : {};
+  const detail = await requestJson(tmdbUrl(`/${mediaType}/${match.id}`, parameters));
   const director = detail.credits?.crew?.find((person) => person.job === "Director")?.name ?? "";
   const creators = (detail.created_by ?? []).map((person) => person.name).filter(Boolean);
   const next = detail.next_episode_to_air;
@@ -687,36 +677,6 @@ catalogCloseButton.addEventListener("click", () => {
   catalogLookupContext = null;
 });
 
-tmdbConnectButton.addEventListener("click", async () => {
-  const token = tmdbTokenInput.value.trim();
-  if (!token) {
-    tmdbConnectionStatus.textContent = "Paste your TMDB API Read Access Token first.";
-    tmdbTokenInput.focus();
-    return;
-  }
-
-  tmdbConnectButton.disabled = true;
-  tmdbConnectionStatus.textContent = "Checking the token with TMDB…";
-  try {
-    await requestJson(`${TMDB_BASE_URL}/configuration`, { headers: tmdbHeaders(token) });
-    tmdbAccessToken = token;
-    tmdbTokenInput.value = "";
-    tmdbDisconnectButton.hidden = false;
-    tmdbConnectionStatus.textContent = "Connected for this tab. The token stays in memory until you close or refresh this page.";
-    void refreshStaleCatalogItems("TMDB");
-  } catch (error) {
-    tmdbConnectionStatus.textContent = error instanceof Error ? error.message : "Could not connect to TMDB.";
-  } finally {
-    tmdbConnectButton.disabled = false;
-  }
-});
-
-tmdbDisconnectButton.addEventListener("click", () => {
-  tmdbAccessToken = "";
-  tmdbDisconnectButton.hidden = true;
-  tmdbConnectionStatus.textContent = "Disconnected. The token has been cleared from this tab.";
-});
-
 catalogLookup.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-action='select-catalog-match']");
   if (button) selectCatalogMatch(Number(button.dataset.matchIndex));
@@ -793,3 +753,4 @@ applyTheme(loadTheme(), false);
 updateCreatorPrompt();
 renderItems();
 void refreshStaleCatalogItems("Open Library");
+void refreshStaleCatalogItems("TMDB");

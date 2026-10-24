@@ -75,20 +75,7 @@
           <button class="button button-secondary" id="catalog-search-button" type="button">Find this title in a live catalog</button>
           <span>Books use Open Library. Movies and series use TMDB.</span>
         </div>
-        <p class="catalog-update-status" id="catalog-update-status" role="status" aria-live="polite">Linked book details refresh once a day when Excript opens. Linked movie and series details refresh after you connect TMDB.</p>
-        <details class="catalog-settings">
-          <summary>Connect the movie and series catalog</summary>
-          <div class="catalog-settings-content">
-            <label class="field" for="tmdb-token">
-              <span>TMDB API Read Access Token</span>
-              <input id="tmdb-token" type="password" autocomplete="off" placeholder="Paste your TMDB read access token">
-            </label>
-            <button class="button button-secondary" id="tmdb-connect" type="button">Use for this session</button>
-            <button class="button button-quiet" id="tmdb-disconnect" type="button" hidden>Disconnect</button>
-            <p id="tmdb-connection-status" role="status" aria-live="polite">The token stays in memory in this tab. Searches and refreshes send title information directly to TMDB, not to Excript's server.</p>
-            <a href="https://developer.themoviedb.org/docs/getting-started" target="_blank" rel="noopener noreferrer">How to request a TMDB API key</a>
-          </div>
-        </details>
+        <p class="catalog-update-status" id="catalog-update-status" role="status" aria-live="polite">Books use Open Library. Movies and series use Excript's shared TMDB connection, so each person can search without their own key.</p>
         <section class="catalog-lookup" id="catalog-lookup" aria-labelledby="catalog-lookup-heading" hidden>
           <div class="catalog-lookup-heading">
             <h3 id="catalog-lookup-heading">Catalog matches</h3>
