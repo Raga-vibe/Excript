@@ -67,10 +67,36 @@
           </label>
           <label class="field">
             <span id="creator-label">Author</span>
-            <input id="item-creator" name="creator" type="text" maxlength="100" placeholder="Who wrote it?" required>
+            <input id="item-creator" name="creator" type="text" maxlength="100" placeholder="Who wrote it?">
           </label>
           <button class="button button-primary" type="submit">Add to list <span aria-hidden="true">＋</span></button>
         </form>
+        <div class="catalog-actions">
+          <button class="button button-secondary" id="catalog-search-button" type="button">Find this title in a live catalog</button>
+          <span>Books use Open Library. Movies and series use TMDB.</span>
+        </div>
+        <p class="catalog-update-status" id="catalog-update-status" role="status" aria-live="polite">Linked book details refresh once a day when Excript opens. Linked movie and series details refresh after you connect TMDB.</p>
+        <details class="catalog-settings">
+          <summary>Connect the movie and series catalog</summary>
+          <div class="catalog-settings-content">
+            <label class="field" for="tmdb-token">
+              <span>TMDB API Read Access Token</span>
+              <input id="tmdb-token" type="password" autocomplete="off" placeholder="Paste your TMDB read access token">
+            </label>
+            <button class="button button-secondary" id="tmdb-connect" type="button">Use for this session</button>
+            <button class="button button-quiet" id="tmdb-disconnect" type="button" hidden>Disconnect</button>
+            <p id="tmdb-connection-status" role="status" aria-live="polite">The token stays in memory in this tab. Searches and refreshes send title information directly to TMDB, not to Excript's server.</p>
+            <a href="https://developer.themoviedb.org/docs/getting-started" target="_blank" rel="noopener noreferrer">How to request a TMDB API key</a>
+          </div>
+        </details>
+        <section class="catalog-lookup" id="catalog-lookup" aria-labelledby="catalog-lookup-heading" hidden>
+          <div class="catalog-lookup-heading">
+            <h3 id="catalog-lookup-heading">Catalog matches</h3>
+            <button class="button-quiet" id="catalog-close" type="button">Close</button>
+          </div>
+          <p id="catalog-status" role="status" aria-live="polite"></p>
+          <ul class="catalog-matches" id="catalog-matches"></ul>
+        </section>
         <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
       </section>
 
@@ -146,6 +172,13 @@
       <footer class="app-footer">
         <span>Made for the stories you haven't read or watched yet.</span>
         <span>Saved in this browser</span>
+        <div class="catalog-attribution">
+          <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" aria-label="The Movie Database (TMDB)">
+            <img class="tmdb-logo" src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg" alt="The Movie Database (TMDB)">
+          </a>
+          <span>This product uses the TMDB API but is not endorsed, certified, or otherwise approved by TMDB.</span>
+          <a href="https://openlibrary.org/" target="_blank" rel="noopener noreferrer">Book data courtesy of Open Library</a>
+        </div>
       </footer>
     </main>
   </body>
