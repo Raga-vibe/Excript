@@ -1,23 +1,23 @@
 # Excript
 
-Excript is a small reading and watchlist app that runs in your browser. Keep books, movies, and series in one place, then mark the stories you finish.
+Excript is a lightweight personal media tracker for books, movies, and series. Keep a list of what you want to read or watch, then find it again with search and status filters.
 
-## What it does
+## Features
 
-- Keep separate Books, Movies, and Series sections.
-- Add a title and its author, director, or creator.
-- Search all three sections by title or person, together with the status filter.
+- Organize books, movies, and series in separate sections.
+- Save an author for each book, a director for each movie, or a creator for each series.
 - Mark books as read and movies or series as watched.
-- Filter between everything, items to read or watch, and completed items.
-- Remove items from your collection.
-- Save changes in this browser with local storage.
+- Search titles and people across your collection.
+- Filter by everything, still to read or watch, and completed.
+- Choose a Forest, Ocean, Sunset, Lavender, or Midnight color theme.
+- Edit your collection by adding or removing entries.
 
-## Run it
+## Run Excript
 
-Open `index.html` in a modern web browser. The app has no build step, account, or external dependencies.
+Open `index.html` in a modern web browser. Excript is a static web app: it has no build step, package installation, or account requirement.
 
-Your collection stays in the browser storage on this device. It is not shared or backed up online.
+## Your data
 
-## About this repository
+Your collection and theme choice are saved in this browser on this device. They are not uploaded to a server or synced to other devices. Clearing this browser's site data removes the saved collection and theme choice.
 
-This repository began as a fork of GitHub's `octocat/Spoon-Knife` practice repository. Excript is being built here as a hands-on way to learn issues, branches, commits, forks, pull requests, reviews, merges, and syncing.
+Excript currently uses titles and people entered by hand; it does not look up posters, descriptions, or other catalog information online.

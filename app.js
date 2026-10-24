@@ -1,4 +1,6 @@
 const STORAGE_KEY = "excript-reading-list-v1";
+const THEME_STORAGE_KEY = "excript-theme-v1";
+const THEMES = ["forest", "ocean", "sunset", "lavender", "midnight"];
 const ITEM_TYPES = ["book", "movie", "series"];
 const TYPE_DETAILS = {
   book: { person: "Author", prompt: "Who wrote it?", completed: "read", active: "To read" },
@@ -18,6 +20,7 @@ const mediaSections = document.querySelector(".media-sections");
 const searchEmpty = document.querySelector("#search-empty");
 const searchEmptyCopy = document.querySelector("#search-empty-copy");
 const readingStats = document.querySelector("#reading-stats");
+const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
 
 const sections = {
   book: {
@@ -41,6 +44,31 @@ const sections = {
 };
 
 let items = loadItems();
+
+function loadTheme() {
+  try {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    return THEMES.includes(savedTheme) ? savedTheme : "forest";
+  } catch {
+    return "forest";
+  }
+}
+
+function applyTheme(theme, save = true) {
+  const selectedTheme = THEMES.includes(theme) ? theme : "forest";
+  document.documentElement.dataset.theme = selectedTheme;
+  for (const button of themeButtons) {
+    button.setAttribute("aria-pressed", String(button.dataset.themeChoice === selectedTheme));
+  }
+
+  if (save) {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, selectedTheme);
+    } catch {
+      formMessage.textContent = "Theme changed, but this browser could not remember your choice.";
+    }
+  }
+}
 
 function createItemId() {
   if (globalThis.crypto?.randomUUID) {
@@ -267,6 +295,10 @@ for (const section of Object.values(sections)) {
 
 itemFilter.addEventListener("change", renderItems);
 itemSearch.addEventListener("input", renderItems);
+for (const button of themeButtons) {
+  button.addEventListener("click", () => applyTheme(button.dataset.themeChoice));
+}
 
+applyTheme(loadTheme(), false);
 updateCreatorPrompt();
 renderItems();

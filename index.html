@@ -4,19 +4,41 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f3ec">
-    <meta name="description" content="A calm, simple reading and watchlist that stays in your browser.">
-    <title>Excript — Your reading and watchlist</title>
+    <meta name="description" content="A personal media tracker for books, movies, and series. Search your collection and track what you have read or watched.">
+    <title>Excript — Personal Media Tracker</title>
     <link rel="stylesheet" href="styles.css">
     <script src="app.js" defer></script>
   </head>
   <body>
     <main class="app-shell">
       <header class="hero">
-        <p class="eyebrow"><span class="brand-mark" aria-hidden="true">E</span> Excript</p>
+        <div class="hero-topline">
+          <p class="eyebrow"><span class="brand-mark" aria-hidden="true">E</span> Excript</p>
+          <div class="header-actions">
+            <span class="theme-label" id="theme-label">Theme</span>
+            <div class="theme-options" role="group" aria-labelledby="theme-label">
+              <button class="theme-swatch" type="button" data-theme-choice="forest" aria-label="Forest theme" aria-pressed="true" title="Forest">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="ocean" aria-label="Ocean theme" aria-pressed="false" title="Ocean">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="sunset" aria-label="Sunset theme" aria-pressed="false" title="Sunset">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="lavender" aria-label="Lavender theme" aria-pressed="false" title="Lavender">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="midnight" aria-label="Midnight theme" aria-pressed="false" title="Midnight">
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="hero-copy">
-          <p class="eyebrow">A little space for your next good story</p>
-          <h1>Your story list<span class="period">.</span></h1>
-          <p class="intro">Books to read, films to watch, and series to save for later.</p>
+          <p class="eyebrow">Your personal media tracker</p>
+          <h1>Your media list<span class="period">.</span></h1>
+          <p class="intro">Organize books, movies, and series, then find them again with search and status filters.</p>
         </div>
         <div class="reading-stats" id="reading-stats" aria-live="polite">0 items · 0 completed</div>
       </header>
