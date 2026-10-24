@@ -481,17 +481,6 @@ function visibleItemsFor(type) {
   );
 }
 
-function formatCatalogDate(value) {
-  if (!value) return "";
-  if (/^\d{4}$/.test(value)) return value;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 function createItemCard(item) {
   const details = TYPE_DETAILS[item.type];
   const card = document.createElement("li");
@@ -530,43 +519,11 @@ function createItemCard(item) {
     if (item.catalog.releaseDate) {
       const release = document.createElement("p");
       release.className = "catalog-detail";
-      release.textContent = `${item.type === "book" ? "First published" : "Release"}: ${formatCatalogDate(item.catalog.releaseDate)}`;
+      const year = item.catalog.releaseDate.slice(0, 4);
+      release.textContent = `${item.type === "book" ? "Published" : "Released"} ${year}`;
       copy.append(release);
     }
 
-    if (item.type === "series" && item.catalog.nextEpisode) {
-      const episode = item.catalog.nextEpisode;
-      const next = document.createElement("p");
-      next.className = "catalog-detail next-episode";
-      const episodeNumber = episode.seasonNumber && episode.episodeNumber
-        ? ` · S${episode.seasonNumber} E${episode.episodeNumber}`
-        : "";
-      const airDate = episode.airDate ? ` · ${formatCatalogDate(episode.airDate)}` : "";
-      next.textContent = `Next episode${episode.name ? `: ${episode.name}` : ""}${episodeNumber}${airDate}`;
-      copy.append(next);
-    }
-
-    if (item.catalog.description) {
-      const overview = document.createElement("p");
-      overview.className = "catalog-overview";
-      overview.textContent = item.catalog.description;
-      copy.append(overview);
-    }
-
-    const attribution = document.createElement("p");
-    attribution.className = "catalog-source";
-    const sourceLink = document.createElement("a");
-    sourceLink.href = item.catalog.sourceUrl;
-    sourceLink.target = "_blank";
-    sourceLink.rel = "noopener noreferrer";
-    sourceLink.textContent = `View on ${item.catalog.provider}`;
-    attribution.append(sourceLink);
-    if (item.catalog.refreshedAt) {
-      const stamp = document.createElement("span");
-      stamp.textContent = ` · Updated ${formatCatalogDate(item.catalog.refreshedAt)}`;
-      attribution.append(stamp);
-    }
-    copy.append(attribution);
   }
 
   info.append(copy);
@@ -646,14 +603,14 @@ function renderItems() {
       section.empty.querySelector(".empty-title").textContent = "Nothing in this view.";
       section.empty.querySelector("p:last-child").textContent = `Change the filter to see your ${countWord}.`;
     } else if (type === "book") {
-      section.empty.querySelector(".empty-title").textContent = "No books saved yet.";
-      section.empty.querySelector("p:last-child").textContent = "Add a book above and it will find a home here.";
+      section.empty.querySelector(".empty-title").textContent = "No books yet";
+      section.empty.querySelector("p:last-child").textContent = "Find one online or add a title above.";
     } else if (type === "movie") {
-      section.empty.querySelector(".empty-title").textContent = "No movies saved yet.";
-      section.empty.querySelector("p:last-child").textContent = "Save a film to watch later.";
+      section.empty.querySelector(".empty-title").textContent = "No movies yet";
+      section.empty.querySelector("p:last-child").textContent = "Find one online or add a title above.";
     } else {
-      section.empty.querySelector(".empty-title").textContent = "No series saved yet.";
-      section.empty.querySelector("p:last-child").textContent = "Keep a series here for your next watch.";
+      section.empty.querySelector(".empty-title").textContent = "No series yet";
+      section.empty.querySelector("p:last-child").textContent = "Find one online or add a title above.";
     }
   }
 }

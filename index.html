@@ -36,9 +36,8 @@
           </div>
         </div>
         <div class="hero-copy">
-          <p class="eyebrow">Your personal media tracker</p>
-          <h1>Your media list<span class="period">.</span></h1>
-          <p class="intro">Organize books, movies, and series, then find them again with search and status filters.</p>
+          <h1>Your media<span class="period">.</span></h1>
+          <p class="intro">Books, movies, and series, all in one place.</p>
         </div>
         <div class="reading-stats" id="reading-stats" aria-live="polite">0 items · 0 completed</div>
       </header>
@@ -46,16 +45,14 @@
       <section class="add-panel" aria-labelledby="add-heading">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Start somewhere</p>
             <h2 id="add-heading">Add to your list</h2>
           </div>
-          <span class="sparkle" aria-hidden="true">✳</span>
         </div>
 
         <form id="item-form" class="item-form">
           <label class="field">
             <span>Title</span>
-            <input id="item-title" name="title" type="text" maxlength="120" placeholder="What do you want to read or watch?" required>
+            <input id="item-title" name="title" type="text" maxlength="120" placeholder="Title" required>
           </label>
           <label class="field">
             <span>Type</span>
@@ -72,10 +69,10 @@
           <button class="button button-primary" type="submit">Add to list <span aria-hidden="true">＋</span></button>
         </form>
         <div class="catalog-actions">
-          <button class="button button-secondary" id="catalog-search-button" type="button">Find this title in a live catalog</button>
-          <span>Books use Open Library. Movies and series use TMDB.</span>
+          <button class="button button-secondary" id="catalog-search-button" type="button">Find online</button>
+          <span>Live details for books, movies, and series</span>
         </div>
-        <p class="catalog-update-status" id="catalog-update-status" role="status" aria-live="polite">Books use Open Library. Movies and series use Excript's shared TMDB connection, so each person can search without their own key.</p>
+        <p class="catalog-update-status visually-hidden" id="catalog-update-status" role="status" aria-live="polite">Books use Open Library. Movies and series use Excript's shared TMDB connection.</p>
         <section class="catalog-lookup" id="catalog-lookup" aria-labelledby="catalog-lookup-heading" hidden>
           <div class="catalog-lookup-heading">
             <h3 id="catalog-lookup-heading">Catalog matches</h3>
@@ -90,7 +87,6 @@
       <section class="list-section" aria-labelledby="list-heading">
         <div class="list-toolbar">
           <div>
-            <p class="eyebrow">Your collection</p>
             <h2 id="list-heading">Saved for later</h2>
           </div>
           <div class="list-controls">
@@ -117,9 +113,8 @@
             </div>
             <ul class="media-list" id="books-list" aria-live="polite"></ul>
             <div class="empty-state" id="books-empty">
-              <span class="empty-icon" aria-hidden="true">✳</span>
-              <p class="empty-title">No books saved yet.</p>
-              <p>Add a book above and it will find a home here.</p>
+              <p class="empty-title">No books yet</p>
+              <p>Find one online or add a title above.</p>
             </div>
           </section>
 
@@ -130,9 +125,8 @@
             </div>
             <ul class="media-list" id="movies-list" aria-live="polite"></ul>
             <div class="empty-state" id="movies-empty">
-              <span class="empty-icon" aria-hidden="true">✳</span>
-              <p class="empty-title">No movies saved yet.</p>
-              <p>Save a film to watch later.</p>
+              <p class="empty-title">No movies yet</p>
+              <p>Find one online or add a title above.</p>
             </div>
           </section>
 
@@ -143,14 +137,12 @@
             </div>
             <ul class="media-list" id="series-list" aria-live="polite"></ul>
             <div class="empty-state" id="series-empty">
-              <span class="empty-icon" aria-hidden="true">✳</span>
-              <p class="empty-title">No series saved yet.</p>
-              <p>Keep a series here for your next watch.</p>
+              <p class="empty-title">No series yet</p>
+              <p>Find one online or add a title above.</p>
             </div>
           </section>
         </div>
         <div class="empty-state search-empty" id="search-empty" role="status" aria-live="polite" hidden>
-          <span class="empty-icon" aria-hidden="true">⌕</span>
           <p class="empty-title">No matching stories found.</p>
           <p id="search-empty-copy">Try a different title or person.</p>
         </div>
