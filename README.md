@@ -1,9 +1,22 @@
-### Well hello there!
+# Excript
 
-This repository is meant to provide an example for *forking* a repository on GitHub.
+Excript is a small reading and watchlist app that runs in your browser. Keep books, movies, and series in one place, then mark the stories you finish.
 
-Creating a *fork* is producing a personal copy of someone else's project. Forks act as a sort of bridge between the original repository and your personal copy. You can submit *Pull Requests* to help make other people's projects better by offering your changes up to the original project. Forking is at the core of social coding at GitHub.
+## What it does
 
-After forking this repository, you can make some changes to the project, and submit [a Pull Request](https://github.com/octocat/Spoon-Knife/pulls) as practice.
+- Keep separate Books, Movies, and Series sections.
+- Add a title and its author, director, or creator.
+- Mark books as read and movies or series as watched.
+- Filter between everything, items to read or watch, and completed items.
+- Remove items from your collection.
+- Save changes in this browser with local storage.
 
-For some more information on how to fork a repository, [check out our guide, "Forking Projects""](http://guides.github.com/overviews/forking/). Thanks! :sparkling_heart:
+## Run it
+
+Open `index.html` in a modern web browser. The app has no build step, account, or external dependencies.
+
+Your collection stays in the browser storage on this device. It is not shared or backed up online.
+
+## About this repository
+
+This repository began as a fork of GitHub's `octocat/Spoon-Knife` practice repository. Excript is being built here as a hands-on way to learn issues, branches, commits, forks, pull requests, reviews, merges, and syncing.

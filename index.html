@@ -1,20 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f3ec">
+    <meta name="description" content="A calm, simple reading and watchlist that stays in your browser.">
+    <title>Excript — Your reading and watchlist</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <p class="eyebrow"><span class="brand-mark" aria-hidden="true">E</span> Excript</p>
+        <div class="hero-copy">
+          <p class="eyebrow">A little space for your next good story</p>
+          <h1>Your story list<span class="period">.</span></h1>
+          <p class="intro">Books to read, films to watch, and series to save for later.</p>
+        </div>
+        <div class="reading-stats" id="reading-stats" aria-live="polite">0 items · 0 completed</div>
+      </header>
 
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>Spoon-Knife</title>
-  <LINK href="styles.css" rel="stylesheet" type="text/css">
-</head>
+      <section class="add-panel" aria-labelledby="add-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Start somewhere</p>
+            <h2 id="add-heading">Add to your list</h2>
+          </div>
+          <span class="sparkle" aria-hidden="true">✳</span>
+        </div>
 
-<body>
+        <form id="item-form" class="item-form">
+          <label class="field">
+            <span>Title</span>
+            <input id="item-title" name="title" type="text" maxlength="120" placeholder="What do you want to read or watch?" required>
+          </label>
+          <label class="field">
+            <span>Type</span>
+            <select id="item-type" name="type">
+              <option value="book">Book</option>
+              <option value="movie">Movie</option>
+              <option value="series">Series</option>
+            </select>
+          </label>
+          <label class="field">
+            <span id="creator-label">Author</span>
+            <input id="item-creator" name="creator" type="text" maxlength="100" placeholder="Who wrote it?" required>
+          </label>
+          <button class="button button-primary" type="submit">Add to list <span aria-hidden="true">＋</span></button>
+        </form>
+        <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+      </section>
 
-<img src="forkit.gif" id="octocat" alt="" />
+      <section class="list-section" aria-labelledby="list-heading">
+        <div class="list-toolbar">
+          <div>
+            <p class="eyebrow">Your collection</p>
+            <h2 id="list-heading">Saved for later</h2>
+          </div>
+          <label class="filter-control">
+            <span class="visually-hidden">Filter items</span>
+            <select id="item-filter">
+              <option value="all">Everything</option>
+              <option value="active">To read or watch</option>
+              <option value="completed">Completed</option>
+            </select>
+          </label>
+        </div>
 
-<!-- Feel free to change this text here -->
-<p>
-  Fork me? Fork you, @octocat!
-</p>
+        <div class="media-sections">
+          <section class="media-section" aria-labelledby="books-heading">
+            <div class="media-section-heading">
+              <h3 id="books-heading">Books</h3>
+              <span class="section-count" id="books-count">0 books</span>
+            </div>
+            <ul class="media-list" id="books-list" aria-live="polite"></ul>
+            <div class="empty-state" id="books-empty">
+              <span class="empty-icon" aria-hidden="true">✳</span>
+              <p class="empty-title">No books saved yet.</p>
+              <p>Add a book above and it will find a home here.</p>
+            </div>
+          </section>
 
-</body>
+          <section class="media-section" aria-labelledby="movies-heading">
+            <div class="media-section-heading">
+              <h3 id="movies-heading">Movies</h3>
+              <span class="section-count" id="movies-count">0 movies</span>
+            </div>
+            <ul class="media-list" id="movies-list" aria-live="polite"></ul>
+            <div class="empty-state" id="movies-empty">
+              <span class="empty-icon" aria-hidden="true">✳</span>
+              <p class="empty-title">No movies saved yet.</p>
+              <p>Save a film to watch later.</p>
+            </div>
+          </section>
+
+          <section class="media-section" aria-labelledby="series-heading">
+            <div class="media-section-heading">
+              <h3 id="series-heading">Series</h3>
+              <span class="section-count" id="series-count">0 series</span>
+            </div>
+            <ul class="media-list" id="series-list" aria-live="polite"></ul>
+            <div class="empty-state" id="series-empty">
+              <span class="empty-icon" aria-hidden="true">✳</span>
+              <p class="empty-title">No series saved yet.</p>
+              <p>Keep a series here for your next watch.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <span>Made for the stories you haven't read or watched yet.</span>
+        <span>Saved in this browser</span>
+      </footer>
+    </main>
+  </body>
 </html>
