@@ -135,6 +135,13 @@ select {
   padding: 24px 0 20px;
 }
 
+.app-loading {
+  width: fit-content;
+  margin: 24vh auto 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .hero {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -158,7 +165,37 @@ select {
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 16px;
+}
+
+.account-actions {
+  display: flex;
+  align-items: center;
   gap: 9px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.account-email {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sync-status {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.sync-status[data-state="success"] { color: var(--green); }
+.sync-status[data-state="error"] { color: var(--coral); }
+
+.account-actions .button-quiet {
+  min-height: 28px;
+  padding: 0 6px;
+  color: var(--muted);
+  font-size: 0.7rem;
 }
 
 .theme-label {
@@ -724,12 +761,30 @@ h2 {
   display: grid;
   grid-template-columns: 1fr auto;
   justify-content: space-between;
-  gap: 10px 14px;
-  padding: 12px 4px 0;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 16px 4px 0;
   border-top: 1px solid #e0e1d8;
   color: var(--muted);
   font-size: 0.75rem;
 }
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.footer-brand .brand-mark { margin: 0; }
+
+.footer-brand > span:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.footer-brand strong { color: var(--ink); font-size: 0.78rem; }
+.footer-brand small { color: var(--muted); font-size: 0.67rem; }
+.app-footer > a { color: var(--green-dark); font-weight: 650; }
 
 .catalog-attribution {
   display: flex;
@@ -737,7 +792,7 @@ h2 {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 13px;
-  padding-top: 7px;
+  padding-top: 10px;
   border-top: 1px solid var(--line);
 }
 
@@ -782,6 +837,9 @@ h2 {
   .hero-topline {
     flex-wrap: wrap;
   }
+
+  .header-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px 13px; }
+  .account-actions { order: 2; width: 100%; justify-content: flex-end; }
 
   .reading-stats {
     justify-self: start;
@@ -839,6 +897,11 @@ h2 {
     font-size: 1.4rem;
   }
 
+  .hero-topline { align-items: flex-start; }
+  .header-actions { max-width: 75%; }
+  .account-email { max-width: 105px; }
+  .account-actions { gap: 5px; font-size: 0.63rem; }
+
   .media-card {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -866,7 +929,7 @@ h2 {
 
   .app-footer {
     grid-template-columns: 1fr;
-    gap: 3px;
+    gap: 8px;
   }
 }
 

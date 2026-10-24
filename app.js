@@ -1,4 +1,5 @@
 const STORAGE_KEY = "excript-reading-list-v1";
+const LEGACY_IMPORT_KEY = "excript-cloud-imported-v1";
 const THEME_STORAGE_KEY = "excript-theme-v1";
 const THEMES = ["forest", "ocean", "sunset", "lavender", "midnight"];
 const TMDB_PROXY_URL = "/api/tmdb";
@@ -32,6 +33,11 @@ const catalogStatus = document.querySelector("#catalog-status");
 const catalogMatchesList = document.querySelector("#catalog-matches");
 const catalogCloseButton = document.querySelector("#catalog-close");
 const catalogUpdateStatus = document.querySelector("#catalog-update-status");
+const appShell = document.querySelector("#app-shell");
+const appLoading = document.querySelector("#app-loading");
+const accountEmail = document.querySelector("#account-email");
+const syncStatus = document.querySelector("#sync-status");
+const signOutButton = document.querySelector("#sign-out");
 
 const sections = {
   book: {
@@ -54,7 +60,11 @@ const sections = {
   },
 };
 
-let items = loadItems();
+let items = [];
+let signedInUser = null;
+let supabaseClient = null;
+let cloudReady = false;
+let cloudSyncQueue = Promise.resolve();
 let catalogMatches = [];
 let catalogLookupContext = null;
 let lastOpenLibraryRequestAt = 0;
@@ -92,9 +102,13 @@ function createItemId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function loadItems() {
+function userStorageKey(userId) {
+  return `${STORAGE_KEY}:${userId}`;
+}
+
+function loadItems(storageKey = STORAGE_KEY) {
   try {
-    const savedItems = localStorage.getItem(STORAGE_KEY);
+    const savedItems = localStorage.getItem(storageKey);
     const parsedItems = savedItems ? JSON.parse(savedItems) : [];
 
     if (!Array.isArray(parsedItems)) return [];
@@ -163,18 +177,177 @@ function normalizeCatalog(catalog) {
 }
 
 function saveItems() {
+  let saved = true;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    return true;
+    const storageKey = signedInUser ? userStorageKey(signedInUser.id) : STORAGE_KEY;
+    localStorage.setItem(storageKey, JSON.stringify(items));
   } catch {
-    return false;
+    saved = false;
   }
+
+  if (cloudReady && signedInUser) queueCloudSync();
+  return saved;
+}
+
+function setSyncStatus(message, state = "") {
+  syncStatus.textContent = message;
+  syncStatus.dataset.state = state;
+}
+
+function cloudRecordToItem(record) {
+  const type = ITEM_TYPES.includes(record.type) ? record.type : "book";
+  return {
+    id: String(record.id),
+    title: String(record.title ?? "").trim(),
+    creator: String(record.creator ?? "").trim(),
+    type,
+    completed: Boolean(record.completed),
+    catalog: normalizeCatalog(record.catalog),
+  };
+}
+
+async function syncItemsToCloud(userId) {
+  if (!cloudReady || !signedInUser || signedInUser.id !== userId) return;
+  const snapshot = items.map((item) => ({ ...item }));
+  const rows = snapshot.map((item) => ({
+    id: item.id,
+    user_id: userId,
+    title: item.title,
+    creator: item.creator,
+    type: item.type,
+    completed: item.completed,
+    catalog: item.catalog,
+    updated_at: new Date().toISOString(),
+  }));
+
+  if (rows.length) {
+    const { error } = await supabaseClient.from("media_items").upsert(rows, { onConflict: "user_id,id" });
+    if (error) throw error;
+  }
+
+  const { data: existingRows, error: listError } = await supabaseClient
+    .from("media_items")
+    .select("id")
+    .eq("user_id", userId);
+  if (listError) throw listError;
+
+  const currentIds = new Set(snapshot.map((item) => item.id));
+  const removedIds = (existingRows ?? []).map((row) => row.id).filter((id) => !currentIds.has(id));
+  if (removedIds.length) {
+    const { error } = await supabaseClient.from("media_items").delete().eq("user_id", userId).in("id", removedIds);
+    if (error) throw error;
+  }
+
+  if (signedInUser?.id === userId) setSyncStatus("Synced", "success");
+}
+
+function queueCloudSync() {
+  if (!cloudReady || !signedInUser) return;
+  const userId = signedInUser.id;
+  cloudSyncQueue = cloudSyncQueue.catch(() => {}).then(async () => {
+    if (!cloudReady || signedInUser?.id !== userId) return;
+    setSyncStatus("Syncing…");
+    try {
+      await syncItemsToCloud(userId);
+    } catch {
+      setSyncStatus("Saved here · sync paused", "error");
+    }
+  });
+}
+
+function subscribeToCloudChanges(userId) {
+  supabaseClient.channel(`media-items:${userId}`)
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "media_items",
+      filter: `user_id=eq.${userId}`,
+    }, (payload) => {
+      if (signedInUser?.id !== userId) return;
+      if (payload.eventType === "DELETE") {
+        items = items.filter((item) => item.id !== String(payload.old.id));
+      } else if (payload.new) {
+        const updated = cloudRecordToItem(payload.new);
+        const index = items.findIndex((item) => item.id === updated.id);
+        if (index >= 0) items[index] = updated;
+        else items.unshift(updated);
+      }
+
+      try {
+        localStorage.setItem(userStorageKey(userId), JSON.stringify(items));
+      } catch {
+        // Cloud data remains available even if this browser cannot cache it.
+      }
+      setSyncStatus("Updated from your other device", "success");
+      renderItems();
+    })
+    .subscribe();
+}
+
+async function initializeApp() {
+  const auth = await window.excriptAuthReady;
+  if (!auth.client || !auth.session) {
+    location.replace("/login.html?next=app");
+    return;
+  }
+
+  supabaseClient = auth.client;
+  signedInUser = auth.session.user;
+  accountEmail.textContent = signedInUser.email ?? "Your account";
+  let localItems = loadItems(userStorageKey(signedInUser.id));
+  const legacyItems = loadItems(STORAGE_KEY);
+
+  let cloudItems = null;
+  let error = null;
+  try {
+    const response = await supabaseClient
+      .from("media_items")
+      .select("id,title,creator,type,completed,catalog,updated_at")
+      .eq("user_id", signedInUser.id)
+      .order("updated_at", { ascending: false });
+    cloudItems = response.data;
+    error = response.error;
+  } catch (requestError) {
+    error = requestError;
+  }
+
+  if (error) {
+    items = localItems.length ? localItems : legacyItems;
+    setSyncStatus("Cloud setup needed", "error");
+    formMessage.textContent = "Run the Supabase setup SQL to turn on account syncing. Your current list stays saved on this device.";
+  } else {
+    cloudReady = true;
+    if (cloudItems.length) {
+      items = cloudItems.map(cloudRecordToItem).filter((item) => item.title);
+      try { localStorage.setItem(userStorageKey(signedInUser.id), JSON.stringify(items)); } catch {}
+      setSyncStatus("Synced", "success");
+      subscribeToCloudChanges(signedInUser.id);
+    } else {
+      let alreadyImported = false;
+      try { alreadyImported = Boolean(localStorage.getItem(LEGACY_IMPORT_KEY)); } catch {}
+      if (!localItems.length && legacyItems.length && !alreadyImported) {
+        localItems = legacyItems;
+        try { localStorage.setItem(LEGACY_IMPORT_KEY, signedInUser.id); } catch {}
+      }
+      items = localItems;
+      saveItems();
+      subscribeToCloudChanges(signedInUser.id);
+    }
+  }
+
+  applyTheme(loadTheme(), false);
+  updateCreatorPrompt();
+  renderItems();
+  appLoading.hidden = true;
+  appShell.hidden = false;
+  void refreshStaleCatalogItems("Open Library");
+  void refreshStaleCatalogItems("TMDB");
 }
 
 function announceChange(message, saved = true) {
   formMessage.textContent = saved
     ? message
-    : `${message} It may not stay after you close this page because this browser could not save it.`;
+    : `${message} This browser could not save the change locally.`;
 }
 
 async function requestJson(url, options) {
@@ -706,8 +879,11 @@ for (const button of themeButtons) {
   button.addEventListener("click", () => applyTheme(button.dataset.themeChoice));
 }
 
-applyTheme(loadTheme(), false);
-updateCreatorPrompt();
-renderItems();
-void refreshStaleCatalogItems("Open Library");
-void refreshStaleCatalogItems("TMDB");
+signOutButton.addEventListener("click", async () => {
+  signOutButton.disabled = true;
+  await cloudSyncQueue.catch(() => {});
+  if (supabaseClient) await supabaseClient.auth.signOut();
+  location.replace("/");
+});
+
+void initializeApp();

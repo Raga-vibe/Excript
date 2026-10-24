@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f3ec">
+    <meta name="description" content="Your personal library for books, movies, and series, synced securely across devices.">
+    <title>Your library — Excript</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="auth-client.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <p id="app-loading" class="app-loading" role="status" aria-live="polite">Connecting to your library…</p>
+    <main class="app-shell" id="app-shell" hidden>
+      <header class="hero">
+        <div class="hero-topline">
+          <p class="eyebrow"><span class="brand-mark" aria-hidden="true">E</span> Excript</p>
+          <div class="header-actions">
+            <div class="account-actions">
+              <span class="account-email" id="account-email"></span>
+              <span class="sync-status" id="sync-status" role="status" aria-live="polite"></span>
+              <button class="button-quiet" id="sign-out" type="button">Sign out</button>
+            </div>
+            <span class="theme-label" id="theme-label">Theme</span>
+            <div class="theme-options" role="group" aria-labelledby="theme-label">
+              <button class="theme-swatch" type="button" data-theme-choice="forest" aria-label="Forest theme" aria-pressed="true" title="Forest">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="ocean" aria-label="Ocean theme" aria-pressed="false" title="Ocean">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="sunset" aria-label="Sunset theme" aria-pressed="false" title="Sunset">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="lavender" aria-label="Lavender theme" aria-pressed="false" title="Lavender">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="theme-swatch" type="button" data-theme-choice="midnight" aria-label="Midnight theme" aria-pressed="false" title="Midnight">
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="hero-copy">
+          <h1>Your media<span class="period">.</span></h1>
+          <p class="intro">Books, movies, and series, all in one place.</p>
+        </div>
+        <div class="reading-stats" id="reading-stats" aria-live="polite">0 items · 0 completed</div>
+      </header>
+
+      <section class="add-panel" aria-labelledby="add-heading">
+        <div class="section-heading">
+          <div>
+            <h2 id="add-heading">Add to your list</h2>
+          </div>
+        </div>
+
+        <form id="item-form" class="item-form">
+          <label class="field">
+            <span>Title</span>
+            <input id="item-title" name="title" type="text" maxlength="120" placeholder="Title" required>
+          </label>
+          <label class="field">
+            <span>Type</span>
+            <select id="item-type" name="type">
+              <option value="book">Book</option>
+              <option value="movie">Movie</option>
+              <option value="series">Series</option>
+            </select>
+          </label>
+          <label class="field">
+            <span id="creator-label">Author</span>
+            <input id="item-creator" name="creator" type="text" maxlength="100" placeholder="Who wrote it?">
+          </label>
+          <button class="button button-primary" type="submit">Add to list <span aria-hidden="true">＋</span></button>
+        </form>
+        <div class="catalog-actions">
+          <button class="button button-secondary" id="catalog-search-button" type="button">Find online</button>
+          <span>Live details for books, movies, and series</span>
+        </div>
+        <p class="catalog-update-status visually-hidden" id="catalog-update-status" role="status" aria-live="polite">Books use Open Library. Movies and series use Excript's shared TMDB connection.</p>
+        <section class="catalog-lookup" id="catalog-lookup" aria-labelledby="catalog-lookup-heading" hidden>
+          <div class="catalog-lookup-heading">
+            <h3 id="catalog-lookup-heading">Catalog matches</h3>
+            <button class="button-quiet" id="catalog-close" type="button">Close</button>
+          </div>
+          <p id="catalog-status" role="status" aria-live="polite"></p>
+          <ul class="catalog-matches" id="catalog-matches"></ul>
+        </section>
+        <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="list-section" aria-labelledby="list-heading">
+        <div class="list-toolbar">
+          <div>
+            <h2 id="list-heading">Saved for later</h2>
+          </div>
+          <div class="list-controls">
+            <label class="search-control">
+              <span class="visually-hidden">Search by title or person</span>
+              <input id="item-search" type="search" placeholder="Search titles or people">
+            </label>
+            <label class="filter-control">
+              <span class="visually-hidden">Filter items</span>
+              <select id="item-filter">
+                <option value="all">Everything</option>
+                <option value="active">To read or watch</option>
+                <option value="completed">Completed</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="media-sections">
+          <section class="media-section" aria-labelledby="books-heading">
+            <div class="media-section-heading">
+              <h3 id="books-heading">Books</h3>
+              <span class="section-count" id="books-count">0 books</span>
+            </div>
+            <ul class="media-list" id="books-list" aria-live="polite"></ul>
+            <div class="empty-state" id="books-empty">
+              <p class="empty-title">No books yet</p>
+              <p>Find one online or add a title above.</p>
+            </div>
+          </section>
+
+          <section class="media-section" aria-labelledby="movies-heading">
+            <div class="media-section-heading">
+              <h3 id="movies-heading">Movies</h3>
+              <span class="section-count" id="movies-count">0 movies</span>
+            </div>
+            <ul class="media-list" id="movies-list" aria-live="polite"></ul>
+            <div class="empty-state" id="movies-empty">
+              <p class="empty-title">No movies yet</p>
+              <p>Find one online or add a title above.</p>
+            </div>
+          </section>
+
+          <section class="media-section" aria-labelledby="series-heading">
+            <div class="media-section-heading">
+              <h3 id="series-heading">Series</h3>
+              <span class="section-count" id="series-count">0 series</span>
+            </div>
+            <ul class="media-list" id="series-list" aria-live="polite"></ul>
+            <div class="empty-state" id="series-empty">
+              <p class="empty-title">No series yet</p>
+              <p>Find one online or add a title above.</p>
+            </div>
+          </section>
+        </div>
+        <div class="empty-state search-empty" id="search-empty" role="status" aria-live="polite" hidden>
+          <p class="empty-title">No matching stories found.</p>
+          <p id="search-empty-copy">Try a different title or person.</p>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <div class="footer-brand">
+          <span class="brand-mark" aria-hidden="true">E</span>
+          <span><strong>Excript</strong><small>Your next story, always within reach.</small></span>
+        </div>
+        <a href="/">Home</a>
+        <div class="catalog-attribution">
+          <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" aria-label="The Movie Database (TMDB)">
+            <img class="tmdb-logo" src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg" alt="The Movie Database (TMDB)">
+          </a>
+          <span>This product uses the TMDB API but is not endorsed, certified, or otherwise approved by TMDB.</span>
+          <a href="https://openlibrary.org/" target="_blank" rel="noopener noreferrer">Book data courtesy of Open Library</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
