@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#090b14">
+    <meta name="description" content="Sign in to your Excript library and keep your stories in sync.">
+    <title>Sign in — Excript</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="landing.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="auth-client.js" defer></script>
+    <script src="login.js" defer></script>
+  </head>
+  <body class="auth-page">
+    <aside class="auth-aside">
+      <a class="wordmark" href="/" aria-label="Excript home"><span class="wordmark-icon">E</span>excript</a>
+      <div class="auth-orbit" aria-hidden="true"></div>
+      <div class="auth-aside-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Your library, wherever you are</p>
+        <h1>Come back to the stories you love.</h1>
+        <p>Your books, films, and series stay together and sync across your devices.</p>
+      </div>
+      <span class="auth-aside-foot">A little space for your next favorite.</span>
+    </aside>
+
+    <main class="auth-panel">
+      <section class="auth-box" aria-labelledby="auth-title">
+        <a class="auth-back" href="/"><span aria-hidden="true">←</span> Back to Excript</a>
+        <p class="eyebrow" id="auth-eyebrow">YOUR PERSONAL LIBRARY</p>
+        <h2 id="auth-title">Welcome back</h2>
+        <p class="auth-subtitle" id="auth-subtitle">Sign in to continue to your library.</p>
+
+        <form class="auth-form" id="auth-form">
+          <label class="auth-field" id="email-field">
+            <span>Email address</span>
+            <input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          </label>
+          <label class="auth-field" id="password-field">
+            <span id="password-label">Password</span>
+            <input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required>
+          </label>
+          <button class="auth-forgot" id="forgot-password" type="button">Forgot password?</button>
+          <button class="button button-primary auth-submit" id="auth-submit" type="submit">Sign in <span aria-hidden="true">→</span></button>
+        </form>
+
+        <p class="auth-switch" id="auth-switch">New to Excript? <button id="mode-toggle" type="button">Create an account</button></p>
+        <p class="auth-message" id="auth-message" role="status" aria-live="polite"></p>
+        <p class="auth-config-note" id="auth-config-note" hidden>Sign-in setup is not complete yet. Add your Supabase project URL and publishable key in Vercel, then create the library table using the setup file in this project.</p>
+      </section>
+    </main>
+  </body>
+</html>
