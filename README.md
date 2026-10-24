@@ -6,6 +6,7 @@ Excript is a small reading and watchlist app that runs in your browser. Keep boo
 
 - Keep separate Books, Movies, and Series sections.
 - Add a title and its author, director, or creator.
+- Search all three sections by title or person, together with the status filter.
 - Mark books as read and movies or series as watched.
 - Filter between everything, items to read or watch, and completed items.
 - Remove items from your collection.
