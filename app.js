@@ -1,5 +1,4 @@
 const STORAGE_KEY = "excript-reading-list-v1";
-const LEGACY_IMPORT_KEY = "excript-cloud-imported-v1";
 const THEME_STORAGE_KEY = "excript-theme-v1";
 const THEMES = ["forest", "ocean", "sunset", "lavender", "midnight"];
 const TMDB_PROXY_URL = "/api/tmdb";
@@ -37,7 +36,9 @@ const appShell = document.querySelector("#app-shell");
 const appLoading = document.querySelector("#app-loading");
 const accountEmail = document.querySelector("#account-email");
 const syncStatus = document.querySelector("#sync-status");
+const signInLink = document.querySelector("#sign-in-link");
 const signOutButton = document.querySelector("#sign-out");
+const storageNote = document.querySelector("#storage-note");
 
 const sections = {
   book: {
@@ -104,6 +105,33 @@ function createItemId() {
 
 function userStorageKey(userId) {
   return `${STORAGE_KEY}:${userId}`;
+}
+
+function mergeGuestItems(accountItems, guestItems) {
+  const merged = accountItems.map((item) => ({ ...item }));
+  const byTitle = new Map();
+  const byId = new Map(merged.map((item) => [item.id, item]));
+  const keyFor = (item) => `${item.type}:${item.title.trim().toLocaleLowerCase()}`;
+
+  for (const item of merged) {
+    byTitle.set(keyFor(item), item);
+  }
+
+  for (const item of guestItems) {
+    const existing = byId.get(item.id) ?? byTitle.get(keyFor(item));
+    if (existing) {
+      if (!existing.creator && item.creator) existing.creator = item.creator;
+      if (!existing.catalog && item.catalog) existing.catalog = item.catalog;
+      continue;
+    }
+
+    const guestCopy = { ...item };
+    merged.push(guestCopy);
+    byId.set(guestCopy.id, guestCopy);
+    byTitle.set(keyFor(guestCopy), guestCopy);
+  }
+
+  return merged;
 }
 
 function loadItems(storageKey = STORAGE_KEY) {
@@ -285,52 +313,60 @@ function subscribeToCloudChanges(userId) {
 }
 
 async function initializeApp() {
-  const auth = await window.excriptAuthReady;
-  if (!auth.client || !auth.session) {
-    location.replace("/login.html?next=app");
-    return;
-  }
+  const forceGuestMode = new URLSearchParams(location.search).get("mode") === "guest";
+  const auth = forceGuestMode ? null : await window.excriptAuthReady;
 
-  supabaseClient = auth.client;
-  signedInUser = auth.session.user;
-  accountEmail.textContent = signedInUser.email ?? "Your account";
-  let localItems = loadItems(userStorageKey(signedInUser.id));
-  const legacyItems = loadItems(STORAGE_KEY);
-
-  let cloudItems = null;
-  let error = null;
-  try {
-    const response = await supabaseClient
-      .from("media_items")
-      .select("id,title,creator,type,completed,catalog,updated_at")
-      .eq("user_id", signedInUser.id)
-      .order("updated_at", { ascending: false });
-    cloudItems = response.data;
-    error = response.error;
-  } catch (requestError) {
-    error = requestError;
-  }
-
-  if (error) {
-    items = localItems.length ? localItems : legacyItems;
-    setSyncStatus("Cloud setup needed", "error");
-    formMessage.textContent = "Run the Supabase setup SQL to turn on account syncing. Your current list stays saved on this device.";
+  if (!auth?.client || !auth.session) {
+    items = loadItems();
+    accountEmail.textContent = "Guest library";
+    setSyncStatus("Saved on this device");
+    signInLink.hidden = false;
+    signOutButton.hidden = true;
+    storageNote.textContent = "Guest list saved on this device.";
   } else {
-    cloudReady = true;
-    if (cloudItems.length) {
-      items = cloudItems.map(cloudRecordToItem).filter((item) => item.title);
-      try { localStorage.setItem(userStorageKey(signedInUser.id), JSON.stringify(items)); } catch {}
-      setSyncStatus("Synced", "success");
-      subscribeToCloudChanges(signedInUser.id);
+    supabaseClient = auth.client;
+    signedInUser = auth.session.user;
+    accountEmail.textContent = signedInUser.email ?? "Your account";
+    signInLink.hidden = true;
+    signOutButton.hidden = false;
+    storageNote.textContent = "Your library is linked to your account.";
+
+    const localItems = loadItems(userStorageKey(signedInUser.id));
+    const guestItems = loadItems(STORAGE_KEY);
+    let cloudItems = null;
+    let error = null;
+    try {
+      const response = await supabaseClient
+        .from("media_items")
+        .select("id,title,creator,type,completed,catalog,updated_at")
+        .eq("user_id", signedInUser.id)
+        .order("updated_at", { ascending: false });
+      cloudItems = response.data;
+      error = response.error;
+    } catch (requestError) {
+      error = requestError;
+    }
+
+    if (error) {
+      items = mergeGuestItems(localItems, guestItems);
+      setSyncStatus("Sync paused", "error");
+      formMessage.textContent = "Your library is still saved on this device. Check your connection to resume account syncing.";
     } else {
-      let alreadyImported = false;
-      try { alreadyImported = Boolean(localStorage.getItem(LEGACY_IMPORT_KEY)); } catch {}
-      if (!localItems.length && legacyItems.length && !alreadyImported) {
-        localItems = legacyItems;
-        try { localStorage.setItem(LEGACY_IMPORT_KEY, signedInUser.id); } catch {}
+      cloudReady = true;
+      const cloudLibrary = (cloudItems ?? []).map(cloudRecordToItem).filter((item) => item.title);
+      const accountLibrary = cloudLibrary.length ? cloudLibrary : localItems;
+      items = mergeGuestItems(accountLibrary, guestItems);
+      const guestLibraryChanged = JSON.stringify(items) !== JSON.stringify(accountLibrary);
+
+      if (!cloudLibrary.length || guestLibraryChanged) {
+        if (guestItems.length && guestLibraryChanged) {
+          formMessage.textContent = "Your guest list has been added to this account.";
+        }
+        saveItems();
+      } else {
+        try { localStorage.setItem(userStorageKey(signedInUser.id), JSON.stringify(items)); } catch {}
+        setSyncStatus("Synced", "success");
       }
-      items = localItems;
-      saveItems();
       subscribeToCloudChanges(signedInUser.id);
     }
   }

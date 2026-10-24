@@ -233,6 +233,10 @@ h1 span, .section-intro h2 span { color: #a8a7b8; }
 .auth-submit:disabled { cursor: wait; opacity: 0.65; }
 .auth-switch { margin: 20px 0 0; color: var(--landing-muted); font-size: 0.77rem; text-align: center; }
 .auth-switch button, .auth-forgot { padding: 0; border: 0; background: none; color: var(--landing-lime); cursor: pointer; font: inherit; font-weight: 700; }
+.auth-guest { display: grid; gap: 4px; margin: 20px 0 0; padding-top: 16px; border-top: 1px solid var(--landing-line); text-align: center; }
+.auth-guest a { color: var(--landing-lime); font-size: 0.78rem; font-weight: 700; }
+.auth-guest a:hover { color: #e7ff9b; }
+.auth-guest span { color: var(--landing-muted); font-size: 0.68rem; }
 .auth-forgot { justify-self: end; margin-top: -7px; font-size: 0.7rem; }
 .auth-message { min-height: 1.3em; margin: 14px 0 0; color: #e0d9f8; font-size: 0.76rem; line-height: 1.55; }
 .auth-message[data-kind="error"] { color: #ffae9a; }

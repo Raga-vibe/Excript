@@ -1,4 +1,17 @@
 (() => {
+  function loadSupabaseLibrary() {
+    if (window.supabase?.createClient) return Promise.resolve(true);
+
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+      script.async = true;
+      script.onload = () => resolve(Boolean(window.supabase?.createClient));
+      script.onerror = () => resolve(false);
+      document.head.append(script);
+    });
+  }
+
   async function initializeAuth() {
     try {
       const response = await fetch("/api/config", { cache: "no-store" });
@@ -6,7 +19,7 @@
       if (!response.ok || !config.url || !config.publishableKey) {
         return { client: null, session: null, error: config.error || "Supabase is not configured yet." };
       }
-      if (!window.supabase?.createClient) {
+      if (!await loadSupabaseLibrary()) {
         return { client: null, session: null, error: "The sign-in library could not be loaded. Check your connection and retry." };
       }
 
