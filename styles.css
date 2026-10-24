@@ -171,6 +171,7 @@ h2 {
 
 .field input,
 .field select,
+.search-control input,
 .filter-control select {
   min-height: 46px;
   border: 1px solid var(--line);
@@ -199,6 +200,7 @@ h2 {
 }
 
 .field input:focus,
+.search-control input:focus,
 .filter-control select:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgb(49 94 75 / 12%);
@@ -257,6 +259,16 @@ h2 {
   margin-bottom: 18px;
 }
 
+.list-controls {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.search-control {
+  display: block;
+}
+
 .media-sections {
   display: grid;
   gap: 14px;
@@ -293,6 +305,13 @@ h2 {
 .filter-control select {
   min-height: 40px;
   padding: 0 34px 0 12px;
+  font-size: 0.82rem;
+}
+
+.search-control input {
+  width: clamp(150px, 22vw, 245px);
+  min-height: 40px;
+  padding: 0 12px;
   font-size: 0.82rem;
 }
 
@@ -399,7 +418,9 @@ h2 {
 }
 
 .empty-state[hidden],
-.media-list[hidden] {
+.media-list[hidden],
+.media-sections[hidden],
+.search-empty[hidden] {
   display: none;
 }
 
@@ -465,6 +486,22 @@ h2 {
 
   .reading-stats {
     justify-self: start;
+  }
+
+  .list-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .list-controls {
+    width: 100%;
+  }
+
+  .search-control {
+    flex: 1;
+  }
+
+  .search-control input {
+    width: 100%;
   }
 
   .item-form {

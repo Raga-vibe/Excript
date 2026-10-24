@@ -13,6 +13,10 @@ const creatorInput = document.querySelector("#item-creator");
 const creatorLabel = document.querySelector("#creator-label");
 const formMessage = document.querySelector("#form-message");
 const itemFilter = document.querySelector("#item-filter");
+const itemSearch = document.querySelector("#item-search");
+const mediaSections = document.querySelector(".media-sections");
+const searchEmpty = document.querySelector("#search-empty");
+const searchEmptyCopy = document.querySelector("#search-empty-copy");
 const readingStats = document.querySelector("#reading-stats");
 
 const sections = {
@@ -88,17 +92,20 @@ function announceChange(message, saved = true) {
 }
 
 function visibleItemsFor(type) {
-  const matchingType = items.filter((item) => item.type === type);
+  let matchingItems = items.filter((item) => item.type === type);
 
   if (itemFilter.value === "completed") {
-    return matchingType.filter((item) => item.completed);
+    matchingItems = matchingItems.filter((item) => item.completed);
+  } else if (itemFilter.value === "active") {
+    matchingItems = matchingItems.filter((item) => !item.completed);
   }
 
-  if (itemFilter.value === "active") {
-    return matchingType.filter((item) => !item.completed);
-  }
+  const query = itemSearch.value.trim().toLowerCase();
+  if (!query) return matchingItems;
 
-  return matchingType;
+  return matchingItems.filter((item) =>
+    `${item.title} ${item.creator}`.toLowerCase().includes(query)
+  );
 }
 
 function createItemCard(item) {
@@ -155,6 +162,15 @@ function renderItems() {
   const itemWord = items.length === 1 ? "item" : "items";
   readingStats.textContent = `${items.length} ${itemWord} · ${completedCount} completed`;
 
+  const query = itemSearch.value.trim();
+  const visibleCount = ITEM_TYPES.reduce((count, type) => count + visibleItemsFor(type).length, 0);
+  const noSearchMatches = Boolean(query) && visibleCount === 0;
+  mediaSections.hidden = noSearchMatches;
+  searchEmpty.hidden = !noSearchMatches;
+  if (noSearchMatches) {
+    searchEmptyCopy.textContent = `No results for “${query}”. Try a different title or person, or change the status filter.`;
+  }
+
   for (const type of ITEM_TYPES) {
     const section = sections[type];
     const visibleItems = visibleItemsFor(type);
@@ -169,7 +185,10 @@ function renderItems() {
     section.list.hidden = !hasVisibleItems;
     section.empty.hidden = hasVisibleItems;
 
-    if (!hasVisibleItems && totalCount > 0) {
+    if (!hasVisibleItems && query) {
+      section.empty.querySelector(".empty-title").textContent = "No matches in this section.";
+      section.empty.querySelector("p:last-child").textContent = "Try another search or change the status filter.";
+    } else if (!hasVisibleItems && totalCount > 0) {
       section.empty.querySelector(".empty-title").textContent = "Nothing in this view.";
       section.empty.querySelector("p:last-child").textContent = `Change the filter to see your ${countWord}.`;
     } else if (type === "book") {
@@ -247,6 +266,7 @@ for (const section of Object.values(sections)) {
 }
 
 itemFilter.addEventListener("change", renderItems);
+itemSearch.addEventListener("input", renderItems);
 
 updateCreatorPrompt();
 renderItems();

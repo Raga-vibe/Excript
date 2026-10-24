@@ -58,14 +58,20 @@
             <p class="eyebrow">Your collection</p>
             <h2 id="list-heading">Saved for later</h2>
           </div>
-          <label class="filter-control">
-            <span class="visually-hidden">Filter items</span>
-            <select id="item-filter">
-              <option value="all">Everything</option>
-              <option value="active">To read or watch</option>
-              <option value="completed">Completed</option>
-            </select>
-          </label>
+          <div class="list-controls">
+            <label class="search-control">
+              <span class="visually-hidden">Search by title or person</span>
+              <input id="item-search" type="search" placeholder="Search titles or people">
+            </label>
+            <label class="filter-control">
+              <span class="visually-hidden">Filter items</span>
+              <select id="item-filter">
+                <option value="all">Everything</option>
+                <option value="active">To read or watch</option>
+                <option value="completed">Completed</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div class="media-sections">
@@ -107,6 +113,11 @@
               <p>Keep a series here for your next watch.</p>
             </div>
           </section>
+        </div>
+        <div class="empty-state search-empty" id="search-empty" role="status" aria-live="polite" hidden>
+          <span class="empty-icon" aria-hidden="true">⌕</span>
+          <p class="empty-title">No matching stories found.</p>
+          <p id="search-empty-copy">Try a different title or person.</p>
         </div>
       </section>
 
